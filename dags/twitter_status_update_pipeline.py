@@ -22,7 +22,7 @@ def twitter_status_update():
         """
         #### update twitter status
         """
-        content = "It always seems impossible until it's done."
+        content = """It always seems impossible until it's done."""
         ins = TwitterStatusUpdate()
         is_posted = ins.tweet_text(content)
         return is_posted

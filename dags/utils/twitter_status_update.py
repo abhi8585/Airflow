@@ -6,8 +6,8 @@ class TwitterStatusUpdate:
         pass
 
     def tweet_text(self, tweet_content):
-        url = f"https://flask-hello-world-phi-two.vercel.app/tweet_text?tweet_content=\"{tweet_content}\""
-        payload={}
-        headers = {}
-        response = requests.request("POST", url, headers=headers, data=payload)
-        return response.status_code
+        print(f"Tweet to post : {tweet_content}")
+        url = f"https://flask-hello-world-phi-two.vercel.app/tweet_text"
+        params = {"tweet_content":tweet_content}
+        response = requests.post(url,params=params)
+        return response.text
