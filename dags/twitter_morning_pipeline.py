@@ -12,8 +12,8 @@ def logData(message):
         print("No message provided")
 
 @dag(
-    schedule_interval="0 10 * * *",
-    start_date=datetime.today(),
+    schedule_interval="30 4 * * *",
+    start_date=datetime(2023,4,4),
     catchup=False,
     default_args={
         "retries": 2, 
@@ -43,7 +43,8 @@ def twitter_morning_update():
             prompt = f"""
         Generate a morning tweet with hashtags #datewithcrypto and #cryptocoffee.
         "The tweet should be crisp, wishing good morning with some crypto news, and based on the context '{article_title}'. "
-        "Limit the tweet to 220 characters."
+        "End some relevant hashtags at the end of tweet"
+         "Limit the tweet to 220 characters."
                     """  
             job_details["tweet_content"] = chat_gpt_client.generate_content(prompt=prompt)
             return job_details
