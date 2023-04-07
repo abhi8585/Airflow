@@ -46,6 +46,7 @@ def twitter_morning_update():
             news_tweet_content = chat_gpt_client.generate_tweet_content(news_promt)
             tweet_content = gm_tweet_content+'\n'+news_tweet_content+'\n'+" ".join(hash_tags)
             tweet_content = tweet_content.replace("to your followers","")
+            tweet_content = tweet_content.replace("to your friends","")
             tweet_content = tweet_content.strip()
             job_details["tweet_content"] = tweet_content
             return job_details
