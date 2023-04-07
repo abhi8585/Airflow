@@ -39,14 +39,15 @@ def twitter_morning_update():
         try:
             chat_gpt_client = ChatGpt()
             article_title = job_details["daily_news_title"]
-            # TODO : keep hashtags dynamic
-            prompt = f"""
-        Generate a morning tweet with hashtags #datewithcrypto and #cryptocoffee.
-        "The tweet should be crisp, wishing good morning with some crypto news, and based on the context '{article_title}'. "
-        "End some relevant hashtags at the end of tweet"
-         "Limit the tweet to 220 characters."
-                    """  
-            job_details["tweet_content"] = chat_gpt_client.generate_content(prompt=prompt)
+            hash_tags = ["#datewithcrypto☀️", "#cryptocoffee☕","#bitcoin₿","#gm"]
+            gm_prompt = f"Generate a tweet description to wish good morning"
+            gm_tweet_content = chat_gpt_client.generate_tweet_content(gm_prompt)
+            news_promt = f"""Generate a tweet based on "{article_title}" """
+            news_tweet_content = chat_gpt_client.generate_tweet_content(news_promt)
+            tweet_content = gm_tweet_content+'\n'+news_tweet_content+'\n'+" ".join(hash_tags)
+            tweet_content = tweet_content.replace("to your followers","")
+            tweet_content = tweet_content.strip()
+            job_details["tweet_content"] = tweet_content
             return job_details
         except Exception as e:
             logData(e)
