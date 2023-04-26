@@ -9,3 +9,4 @@ RUN apt-get update \
 
 USER airflow
 RUN pip install --no-cache-dir openai
+RUN pip install tweepy
