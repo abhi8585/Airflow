@@ -1,9 +1,11 @@
 import json
 from datetime import datetime, timedelta
-from airflow.decorators import dag, task
+from airflow.decorators import task
 from utils.twitter_status_update import TwitterStatusUpdate
 from utils.news_api import DailyNews
 from utils.chat_gpt import ChatGpt
+from airflow.models import Variable
+from airflow import DAG
 
 def logData(message):
     if message is not None:
@@ -11,16 +13,9 @@ def logData(message):
     else:
         print("No message provided")
 
-@dag(
-    schedule_interval="30 4 * * *",
-    start_date=datetime(2023,4,4),
-    catchup=False,
-    default_args={
-        "retries": 2, 
-    },
-    tags=['twitter','status','morning', 'tweet'])
 
-def twitter_morning_update():
+with DAG('twitter_morning_pipeline',default_args={"retries": 2},
+        schedule_interval="30 4 * * *",start_date=datetime(2023,4,27)) as dag:
     @task
     def kickOff():
         from datetime import datetime
@@ -28,14 +23,17 @@ def twitter_morning_update():
 
     @task
     def get_daily_news(job_details):
-        news_client = DailyNews()
-        # TODO :  need to pass trending topic after getting from twitter
+        logData(f"Received input : {job_details}")
+        api_key = Variable.get("news_api_key")
+        news_client = DailyNews(api_key=api_key)
         daily_news_title = news_client.get_article_title(topic="crypto")
+        logData(daily_news_title)
         job_details["daily_news_title"] = daily_news_title
         return job_details
 
     @task
     def generate_tweet_content(job_details):
+        logData(f"Received input : {job_details}")
         try:
             chat_gpt_client = ChatGpt()
             article_title = job_details["daily_news_title"]
@@ -45,6 +43,7 @@ def twitter_morning_update():
             news_promt = f"""Generate a tweet based on "{article_title}" """
             news_tweet_content = chat_gpt_client.generate_tweet_content(news_promt)
             tweet_content = gm_tweet_content+'\n'+news_tweet_content+'\n'+" ".join(hash_tags)
+            logData(f"tweet_content : {tweet_content}")
             tweet_content = tweet_content.replace("to your followers","")
             tweet_content = tweet_content.replace("to your friends","")
             tweet_content = tweet_content.strip()
@@ -64,6 +63,4 @@ def twitter_morning_update():
         logData(f"{tweet_content} posted from morning pipeline")
         return is_posted
 
-    is_posted = tweet_morning_status(generate_tweet_content(get_daily_news(kickOff())))
-
-twitter_morning_update()
+    tweet_morning_status(generate_tweet_content(get_daily_news(kickOff())))

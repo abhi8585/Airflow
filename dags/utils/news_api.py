@@ -5,14 +5,14 @@ from datetime import date, timedelta
 
 class DailyNews:
 
-    def __init__(self):
-        pass
+    def __init__(self,api_key):
+        self.api_key = api_key
 
     def get_daily_article(self, topic):
         # TODO : add credential from some other way
         # TODO : add exception handling
 
-        api_key = ''
+        api_key = self.api_key
         endpoint = 'https://newsapi.org/v2/everything'
         today_date = date.today()
         yesterday_date = today_date - timedelta(days=1)
